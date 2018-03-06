@@ -4,7 +4,7 @@ function liverVFM_multiSlice_2D(volunteerDir, sequence)
 % Caluclate VFM isotropic stiffness for liver data
 %
 % Written by: Renee Miller
-% 9 October 2017
+% 6 March 2018
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
@@ -44,7 +44,7 @@ magDir = sprintf('%s/%s', volunteerDir, tmpName{1});
 % Output directory
 tmp = strsplit(magDir, '/');
 tmp2 = strsplit(tmp{end}, '_');
-tmp3 = strsplit(sequence, '_');
+tmp3 = strsplit(sequence, '*');
 if length(tmp3) > 1
     outDir = sprintf('%s/%s_%s_results', volunteerDir, tmp2{1}, tmp3{end});
 else

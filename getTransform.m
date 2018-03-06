@@ -18,6 +18,7 @@ function [contour2magnet, magnet2image] = getTransform(volunteerDir, magFldr, nu
 % Written by: Renee Miller (rmil520@aucklanduni.ac.nz)
 % Date modified: 19 February 2018
 %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Put MRE image data into one variable - ImgMat
@@ -28,6 +29,7 @@ imageFiles = {AllFiles.name};
 imageFiles(ismember(imageFiles,{'.','..'})) = [];
 
 % Product sequence directory - to get contour2magnet transformation matrices
+% Folder names hard coded for Siemens product sequence - bad
 productDir = sprintf('%s/SIEMENS greMRE_tra_p2_bh_128_Mag', volunteerDir);
 if ~exist(productDir, 'dir')
     productDir = sprintf('%s/SIEMENS_GREMRE_TRA_P2_BH_128_MAG', volunteerDir); %20171109
@@ -48,7 +50,7 @@ sl = zeros(length(imageFiles), 2);
 % Check to see that there are the same number of images in both the product
 % and wip folders
 if ~(length(imageFilesProduct)==length(imageFiles))
-    [imageFiles, imageFilesProduct] = findMatchingSlices(magFldr, imageFiles, productDir, imageFilesProduct);
+    [imageFiles, imageFilesProduct] = findMatchingSlices(magFldr, productDir);
 end
 
 % Get slice locations
