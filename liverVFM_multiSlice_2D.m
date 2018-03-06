@@ -1,4 +1,4 @@
-function liverVFM_multiSlice(volunteerDir, sequence)
+function liverVFM_multiSlice_2D(volunteerDir, sequence)
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Caluclate VFM isotropic stiffness for liver data
@@ -7,17 +7,13 @@ function liverVFM_multiSlice(volunteerDir, sequence)
 % 9 October 2017
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Define constants
 
-% Element type used for VFM analysis
-% Choices: C3D8 (most accurate), C3D8R (faster, less accurate) or C3D8F
-elemType = 'C3D8';
-
-% Level of Gauss Point "refinement" within each element
-% If C3D8, GaussPoints = [] (defined within functions and differs for deviatoric versus dilatational stress calculations)
-% If C3D8R, GaussPoints = [] (always 1, defined within functions)
-% If C3D8F, GaussPoints = 1, 2, or 3. 1 = single Gauss Point at centroid, 2 = 8 Gauss points, 3 = 27 Gauss Points
-GaussPoints = [];
+% Level of Gauss Point "refinement" within each element (number of integration 
+% points in each direction)
+GaussPoints = 2;
 
 % Density = kg/mm^3
 rho = 1.0e-6; % Density of water
@@ -26,7 +22,12 @@ rho = 1.0e-6; % Density of water
 f = 60.1; %%%%%%%%%%%%%%%%% change as needed %%%%%%%%%%%%%%%%%%%%%%
 omega = f * 2 * pi; % angular frequency - used in wave equation
 
-% Define directories:
+% Recalculate or not
+RECALC = 0;
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Define directories:
 
 % Phase images
 file_spec = sprintf('%s/*%s*P_Wave', volunteerDir, sequence);
@@ -53,8 +54,6 @@ if ~exist(outDir, 'dir')
     mkdir(outDir);
 end
 
-% Recalculate or not
-RECALC = 0;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Load image data and calculate complex FHA
@@ -92,11 +91,11 @@ disp('Loading model node and element data...');
 
 % Node coordinates
 %nodes = load('nodeCoords.txt');
-load nodes.mat;
+load nodes_2D.mat;
 
 % Each element = 1 row with eight node numbers
 %elems = load('elems.txt');
-load elems.mat;
+load elems_2D.mat;
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -161,13 +160,13 @@ saveas(FH3, sprintf('%s/region-fha.png', outDir));
 close(FH3)
 
 % Get nodes and elements inside the mask - slow
-regionMeshFile = sprintf('%s/regionMesh.mat', outDir);
+regionMeshFile = sprintf('%s/regionMesh_2D.mat', outDir);
 
 if ~exist(regionMeshFile, 'file') || RECALC
     
     % Get nodes which are in the mask
-    [cn, ~] = inpoly(nodes(:,2:3), imageContourCoords);
-    liverNodes = [cn cn cn cn] .* nodes;
+    [cn, ~] = inpoly(nodeCoords(:,2:3), imageContourCoords);
+    liverNodes = [cn cn cn] .* nodeCoords;
     
     % Remove all rows with zeros
     liverNodes( ~any(liverNodes,2), : ) = [];
@@ -213,32 +212,26 @@ for slice = 1:size(phaseMat,2)
     disp('Interpolating image data at nodal coordinates...');
     
     % Create meshgrid of image pixel coordinates
-    [xx, yy, zz] = meshgrid(linspace(0.5,res-0.5,res), linspace(0.5,res-0.5,res), linspace(0, 5, 6));
+    [xx, yy] = meshgrid(linspace(0.5,res-0.5,res), linspace(0.5,res-0.5,res));
     
-    % Displacements at each pixel (must be a faster/cleaner way of doing this)
-    uImg = zeros(size(fha,2), size(fha,3), size(xx,3));
-    for i = 1:size(xx,3) % x, y, z
-        uImg(:,:,i) = squeeze(fha(slice,:,:));
-    end
-    
+    % Current image slice displacements
+    uImg = squeeze(fha(slice,:,:));
+        
     % Interpolate displacements at nodal coordinates
-    Uy_r = interp3(xx, yy, zz, real(uImg), nodes(:,2), nodes(:,3), nodes(:,4), 'linear');
-    Uy_i = interp3(xx, yy, zz, imag(uImg), nodes(:,2), nodes(:,3), nodes(:,4), 'linear');
+    Uy_r = interp2(xx, yy, real(uImg), nodeCoords(:,2), nodeCoords(:,3), 'linear');
+    Uy_i = interp2(xx, yy, imag(uImg), nodeCoords(:,2), nodeCoords(:,3), 'linear');
     Uy = Uy_r + 1i*Uy_i;
     
     % Turn NaNs into 0's
     Uy(isnan(Uy)) = 0;
     
-    % Create list of displacements with zeros for x and y directions
-    U = zeros(length(Uy)*3,1);
-    U(2:3:end) = Uy;
-    
-    % Plot interpolated virtual displacement field - check
-    %plotVF(U, U, nodes, outDir);
+    % Create list of displacements with zeros for x direction
+    U = zeros(length(Uy)*2,1);
+    U(2:2:end) = Uy;
     
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    %% Calculate shear stiffness for liver region only - no subzones
+    %% Calculate shear stiffness for liver region only
     
     % Final nodes and elements to use:
     % nodes: liverNodes
@@ -246,24 +239,12 @@ for slice = 1:size(phaseMat,2)
     
     % Calculate the numeric virtual field
     disp('Calculating the numeric virtual field...')
-    [uVF, eta, strain1] = numericVF_Iso(U, liverNodes, liverElems, nodes(:,1), [], elemType, GaussPoints);
+    [uVF, eta, strain1] = numericVF_Iso2D(U, liverNodes, liverElems, nodeCoords(:,1), [], GaussPoints);
     
     % Calculate shear modulus
     disp('Calculating the shear modulus...')
+    [fk, fg, b, strain2] = solveIsoVFM_C2D4(U, uVF, rho, omega, liverNodes, liverElems, nodeCoords(:,1), GaussPoints);
     
-    if strcmp(elemType, 'C3D8R')
-        % Uniform strain elements - C3D8R
-        [fk, fg, b, strain2] = solveIsoVFM_C3D8R(U, uVF, rho, omega, liverNodes, liverElems, nodes(:,1));
-        
-    elseif strcmp(elemType, 'C3D8')
-        % Selectively reduced integration type element - C3D8
-        [fk, fg, b, strain2] = solveIsoVFM_C3D8(U, uVF, rho, omega, liverNodes, liverElems, nodes(:,1));
-        
-    else
-        % Fully integrated element
-        [fk, fg, b, strain2] = solveIsoVFM_C3D8F(U, uVF, rho, omega, liverNodes, liverElems, nodes(:,1), GaussPoints);
-        
-    end
     
     % Calculate complex shear modulus
     shear = b/fg;
@@ -273,11 +254,11 @@ for slice = 1:size(phaseMat,2)
     nG = calcNormSensitivity(eta, shear);
     
     % Save results
-    save(sprintf('%s/shearResult_slice%d.mat', outDir, slice), 'shear', 'uVF', 'eta', 'fk', 'fg', 'b', 'strain2', 'nG', 'magShear');
+    save(sprintf('%s/shearResult_slice%d_2D.mat', outDir, slice), 'shear', 'uVF', 'eta', 'fk', 'fg', 'b', 'strain2', 'nG', 'magShear');
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %% Plot measured displacement field and virtual displacement fields
-    plotVF(uVF, U, liverNodes, outDir);
+    plotVF_2D(uVF, U, liverNodes, outDir);
     
     
 end

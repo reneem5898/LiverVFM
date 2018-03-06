@@ -13,9 +13,7 @@ allFolders = {AllFolders.name};
 allFolders(ismember(allFolders,{'.','..'})) = [];
 
 % Scanning sequences
-%sequences = {'923', '887', '923_*_fract'};
 sequences = {'SIEMENS', '923', '887', '923*fract'};
-%sequences = {'SIEMENS'};
 
 % Number of slices
 numSlices = 4;
@@ -48,7 +46,8 @@ for i = 1:length(allFolders)
             disp(seq)
             
             % Run analysis
-%             liverVFM_multiSlice(volunteerDir, seq);
+            %             liverVFM_multiSlice(volunteerDir, seq); %3D analysis
+            liverVFM_multiSlice_2D(volunteerDir, seq); %2D analysis
             
             % Collect results
             [mg, g, ng] = getResultsLiverVFM(volunteerDir, seq, numSlices);
@@ -63,16 +62,16 @@ end
 % volunteerDir = 'P:/Data/Liver/MRE_20171214_2';
 % % Loop through all sequences
 % for j = 1:length(sequences)
-%     
+%
 %     % Scanning sequence
 %     seq = sequences{j};
-%     
+%
 %     % Run analysis
 %     liverVFM_multiSlice(volunteerDir, seq);
 % end
 
 % Save matfile with all results
-save(sprintf('%s/results-allLiver.mat', parentDir), 'magG', 'G', 'nG')
+save(sprintf('%s/results-allLiver-2D.mat', parentDir), 'magG', 'G', 'nG')
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Plot results

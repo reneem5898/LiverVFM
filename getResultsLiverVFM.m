@@ -26,7 +26,7 @@ sensitivity = zeros(numSlices,1);
 % Load results for each slice
 for i = 1:numSlices
    
-    load(sprintf('%s/shearResult_slice%d.mat', outDir, i));
+    load(sprintf('%s/shearResult_slice%d_2D.mat', outDir, i));
     
     magG(i) = magShear;
     G(i) = shear;
