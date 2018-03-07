@@ -1,4 +1,4 @@
-% Run all liver vfm analyses back to back
+% Run all liver vfm analyses
 
 close all
 clear all
@@ -79,7 +79,7 @@ save(sprintf('%s/results-allLiver-2D.mat', parentDir), 'magG', 'G', 'nG')
 % Plot all shear stiffness values and sensitivity values
 figure(1)
 scatter(abs(nG(:)), magG(:), 'ro', 'filled')
-ylabel('Shear Modulus (kPa)', 'FontSize', 16)
+ylabel('|Shear Modulus (kPa)|', 'FontSize', 16)
 xlabel('Normalised Sensitivity (\eta/G)', 'FontSize', 16)
 set(gca, 'FontSize', 12)
 
@@ -100,7 +100,7 @@ hold on
 scatter(abs(nG_923(:)), magG_923(:), 'bo', 'filled')
 scatter(abs(nG_887(:)), magG_887(:), 'ko', 'filled')
 scatter(abs(nG_923F(:)), magG_923F(:), 'mo', 'filled')
-ylabel('Shear Modulus (kPa)', 'FontSize', 16)
+ylabel('|Shear Modulus (kPa)|', 'FontSize', 16)
 xlabel('Normalised Sensitivity (\eta/G)', 'FontSize', 16)
 set(gca, 'FontSize', 12)
 legend('Product', '923', '887', '923F', 'Location', 'Best')
