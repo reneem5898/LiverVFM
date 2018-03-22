@@ -23,7 +23,7 @@ f = 60.1; %%%%%%%%%%%%%%%%% change as needed %%%%%%%%%%%%%%%%%%%%%%
 omega = f * 2 * pi; % angular frequency - used in wave equation
 
 % Recalculate or not
-RECALC = 0;
+RECALC = 1;
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -71,8 +71,8 @@ resultsFile = sprintf('%s/displacements.mat', outDir);
 if ~exist(resultsFile, 'file') || RECALC
     
     % Get complex first harmonic amplitude and mask
-    [fha, mask, pixelSpacing, avgMag, phaseMat, dc] = getDisp_MS(res, phaseDir, magDir, outDir);
-    save(resultsFile, 'fha', 'mask', 'pixelSpacing', 'avgMag', 'phaseMat', 'dc');
+    [fha, mask, pixelSpacing, avgMag, phaseMat, magMat, dc] = getDisp_MS(res, phaseDir, magDir, outDir);
+    save(resultsFile, 'fha', 'mask', 'pixelSpacing', 'avgMag', 'phaseMat', 'magMat', 'dc');
     
     % Plot fft fit for one pixel (70,100) - just for visualisation
     plotLiverPhaseOffsets(squeeze(phaseMat(:,1,:,:)), squeeze(fha(1,:,:)), outDir, 70, 100);
@@ -191,7 +191,7 @@ if ~exist(regionMeshFile, 'file') || RECALC
     liverNodes(:,3) = liverNodes(:,3)*pixelSpacing(2); % y
     
     % Save element and node data in ROI
-    save(regionMeshFile, 'liverElems', 'liverNodes');
+    save(regionMeshFile, 'liverElems', 'liverNodes', 'imageContourCoords');
     
 else
     load(regionMeshFile);

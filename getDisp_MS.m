@@ -1,4 +1,4 @@
-function [fha, maskAbdomen, pixelSpacing, avgMag, phaseMat, dc] = getDisp_MS(res, phaseFldr, magFldr, outDir)
+function [fha, maskAbdomen, pixelSpacing, avgMag, phaseMat, magMat, dc] = getDisp_MS(res, phaseFldr, magFldr, outDir)
 
 %% getDisp - gets complex fha from liver images
 % Inputs: 1) Image resolution

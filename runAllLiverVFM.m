@@ -47,7 +47,7 @@ for i = 1:length(allFolders)
             
             % Run analysis
 %             liverVFM_multiSlice(volunteerDir, seq); %3D analysis
-%             liverVFM_multiSlice_2D(volunteerDir, seq); %2D analysis
+            liverVFM_multiSlice_2D(volunteerDir, seq); %2D analysis
             
             % Collect results
             [mg, g, ng] = getResultsLiverVFM(volunteerDir, seq, numSlices);
