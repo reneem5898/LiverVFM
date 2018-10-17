@@ -1,4 +1,4 @@
-function nodeIdcs = getNodeIdcs(nodeList, elems, elemNum, DOF)
+function nodeIdcs = getNodeIdcs(nodeList, elemsList, elemNum, DOF)
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Function returns indices of nodes in nodeList
@@ -15,7 +15,7 @@ function nodeIdcs = getNodeIdcs(nodeList, elems, elemNum, DOF)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % Nodes per element
-nodesPerElem = size(elems, 2) - 1;
+nodesPerElem = size(elemsList, 2) - 1;
 
 % Index list
 indexList = linspace(1,length(nodeList),length(nodeList));
@@ -27,7 +27,7 @@ nodeIdcs = [];
 for n = 1:nodesPerElem
     
     % Index of node in node list
-    idx = indexList(nodeList==elems(elemNum,n+1)); 
+    idx = indexList(nodeList==elemsList(elemNum,n+1)); 
     
     for d = 1:DOF % For each DOF
         nodeIdcs = [nodeIdcs (idx*DOF)-(DOF-d)]; % Append index to list of indices
