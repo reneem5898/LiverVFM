@@ -205,7 +205,7 @@ end
 for slice = 1:size(phaseMat,2)
     
     % Display current slice number
-    disp(sprintf('Slice #: %d', slice));
+    fprintf('Slice #: %d', slice);
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %% Get image coordinates for liver MRE data

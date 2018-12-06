@@ -7,6 +7,7 @@ function nodeIdcs = getNodeIdcs(nodeList, elemsList, elemNum, DOF)
 %         2) elems - element connectivity
 %         3) elemNum - current element number
 %         4) DOF - nodal degrees of freedom
+%         5) nodesPerElem - number of nodes per element (type of element)
 %
 % Outputs: List of nodal indices
 %
@@ -14,14 +15,16 @@ function nodeIdcs = getNodeIdcs(nodeList, elemsList, elemNum, DOF)
 % 10 February 2017
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% Nodes per element
-nodesPerElem = size(elemsList, 2) - 1;
+% Number of nodes per element
+nodesPerElem = size(elemsList,2) - 1;
 
 % Index list
 indexList = linspace(1,length(nodeList),length(nodeList));
 
 % Initialise list of node indices
-nodeIdcs = [];
+nodeIdcs = zeros(1,DOF*nodesPerElem);
+
+count = 0;
 
 % For node in current element
 for n = 1:nodesPerElem
@@ -30,7 +33,9 @@ for n = 1:nodesPerElem
     idx = indexList(nodeList==elemsList(elemNum,n+1)); 
     
     for d = 1:DOF % For each DOF
-        nodeIdcs = [nodeIdcs (idx*DOF)-(DOF-d)]; % Append index to list of indices
+        count = count + 1;
+        
+        nodeIdcs(count) = (idx*DOF)-(DOF-d); % Append index to list of indices
         
     end
 end

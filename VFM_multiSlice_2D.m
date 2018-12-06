@@ -8,8 +8,8 @@
 close all 
 clear all
 
-addpath('\\MD314104\Users\rmil520\Documents\MATLAB\HyperelasticModels');
-addpath('\\MD314104\Users\rmil520\Documents\MATLAB\VFM\Optimised_VFM');
+addpath('D:\Renee\UoA\MATLAB\HyperelasticModels');
+addpath('D:\Renee\UoA\MATLAB\VFM\Optimised_VFM');
 
 modelDir = 'P:\UA - PhD\FEM\Frequency Analysis\PreStretch\beam_iso_loads\Comp_Y\SSD0';
 

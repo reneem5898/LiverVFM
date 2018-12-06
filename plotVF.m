@@ -10,7 +10,7 @@ function plotVF(uVF, U, nodes, outDir)
 %         3. nodes - nodal coordinates in region of interest
 %         4. outDir - directory where to save fig
 %
-% Written by: Renee Miller (rmil520@aucklanduni.ac.nz)
+% Written by: Renee Miller (renee.miller@auckland.ac.nz)
 % Date: 1 November 2017
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 

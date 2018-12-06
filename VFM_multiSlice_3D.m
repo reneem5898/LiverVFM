@@ -1,3 +1,5 @@
+function VFM_multiSlice_3D(modelDir)
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Caluclate 3D VFM isotropic stiffness for model data
 %
@@ -8,10 +10,8 @@
 close all 
 clear all
 
-addpath('\\MD314104\Users\rmil520\Documents\MATLAB\HyperelasticModels');
-addpath('\\MD314104\Users\rmil520\Documents\MATLAB\VFM\Optimised_VFM');
-
-modelDir = 'P:\UA - PhD\FEM\Frequency Analysis\PreStretch\beam_iso_loads\Comp_Y\SSD0';
+addpath('D:\Renee\UoA\MATLAB\HyperelasticModels');
+addpath('D:\Renee\UoA\MATLAB\VFM\Optimised_VFM');
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Define constants
@@ -167,7 +167,7 @@ for slice = 1:numSlices
     
     % Calculate shear modulus
     disp('Calculating the shear modulus...')
-    [fk, fg, b, strain2] = solveIsoVFM_C3D8(U, uVF, rho, omega, regionNodes, regionElems, nodes(:,1), GaussPoints);
+    [~, fg, b, ~] = solveIsoVFM_C3D8(U, uVF, rho, omega, regionNodes, regionElems, nodes(:,1));
     
     % Calculate complex shear modulus
     shear = b/fg
@@ -176,7 +176,7 @@ for slice = 1:numSlices
     nG = calcNormSensitivity(eta, shear);
     
     % Save results
-    save(sprintf('%s/shearResult_slice%d_2D.mat', outDir, slice), 'shear', 'uVF', 'eta', 'nG');
+    save(sprintf('%s/shearResult_slice%d.mat', outDir, slice), 'shear', 'uVF', 'eta', 'nG');
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %% Plot measured displacement field and virtual displacement fields
